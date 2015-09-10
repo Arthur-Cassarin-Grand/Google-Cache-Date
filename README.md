@@ -36,6 +36,10 @@ Two arrays :
 extract_urls_from_file(source_file)
 get_urls_results(urls_extracted)
 get_cache_date(urls_extracted, driver)
+
+# The "driver" argument can take two values :
+# - "firefox" : firefox is used to get the cache date, require a desktop environnement (only useful for testing).
+# - "ghostJS" : headless browser, faster and invisible for the user, perfect for this script.
 ```
 
 #### Attributes :
