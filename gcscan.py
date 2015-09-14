@@ -6,6 +6,7 @@ import re
 import sys
 import requests
 import time
+import csv
 
 
 class GScan(object):
@@ -20,7 +21,6 @@ class GScan(object):
         self.urls_max_count = 0
 
     def extract_urls_from_file(self, source_file):
-        i = 0
         file = open(source_file, "r")
         self.urls = file.readlines()
         file.close()
@@ -30,7 +30,7 @@ class GScan(object):
         i = 0
         for url in urls_extracted:
             self.results_urls.append(url)
-            i = i + 1
+            i += 1
         self.urls_max_count = i
         return self.results_urls
 
@@ -44,13 +44,34 @@ class GScan(object):
         return captcha
 
     def unlock_captcha(self, current_url):
-        print ("[!] Google ask a captcha, fill it and press Enter to resume the scan")
+        print("[!] Google ask a captcha, fill it and press Enter to resume the scan")
         driver2 = webdriver.Firefox()
         driver2.get(current_url)
         input()
 
+    def fill_csv(self, array_urls, array_dates, csv_file_path):
+        result_array = []
+        array_length = len(array_dates)
+
+        # We fill the CSV file
+        file = open(csv_file_path, "w")
+        csv_file = csv.writer(file, delimiter=';', lineterminator='\n')
+
+        # We merge the two arrays in one
+        i = 1
+        result_array[0][0].append(array_urls[i])
+        result_array[0][1].append(array_dates[i])
+        while not i == array_length:
+            print("pouet")
+            result_array[i][0].append(array_urls[i])
+            result_array[i][1].append(array_dates[i])
+            i += 1
+
+        csv_file.writerows(result_array)
+        file.close()
+
     def get_cache_date(self, urls_extracted, driver):
-        print ("Browser loading...")
+        print("Browser loading...")
 
         if driver == "firefox":
             driver = webdriver.Firefox()
@@ -58,21 +79,21 @@ class GScan(object):
             driver = webdriver.PhantomJS()
 
         i = 0  # For progression check
-        print ("There is " + str(self.urls_max_count) + " URLs ready.")
+        print("There is " + str(self.urls_max_count) + " URLs ready.")
 
         for url in urls_extracted:
             error_flag = 0  # The URL is considered as accessible by default
-            i = i + 1
+            i += 1
 
             # Prepare Google Cache URL
             google_cache_url = "http://webcache.googleusercontent.com/search?q=cache:" + url \
                                + "&amp;espv=2&strip=0&vwsrc=1"
 
             # Show the progression
-            print ("Check the URL " + str(i) + "/" + str(self.urls_max_count))
+            print("Check the URL " + str(i) + "/" + str(self.urls_max_count))
 
             if i > 75:  # We delay the crawl for too many URL, fear the captcha :)
-                print ("Please wait 27 sec (avoid captcha)")
+                print("Please wait 27 sec (avoid captcha)")
                 time.sleep(27)
 
             # Open the cached version of the URL
